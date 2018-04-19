@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Compiler from './Compiler'
 
 const src = `
-// Comment
+12345;
 `
 
 export default class App extends Component {
