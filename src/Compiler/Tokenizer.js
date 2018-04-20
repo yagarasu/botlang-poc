@@ -16,28 +16,28 @@ class Tokenizer {
     T_OP_DIV: '\\/',
     T_OP_MOD: '%',
     T_OP_POW: '\\^',
-    
+
     T_FLOAT: '\\d+\\.\\d+',
     T_INT: '\\d+',
     T_BOOL: 'TRUE|FALSE',
     T_STR_DBL: '"[^"]*"',
     T_STR_SING: '\'[^\']*\'',
-    
+
     T_FUNC: 'func',
     T_VAR: 'var',
     T_CALL: 'call',
-    
+
     T_FOR: 'for',
     T_WHILE: 'while',
     T_IF: 'if',
     T_ELSE: 'else',
     T_ELSEIF: 'elseif',
-    
+
     T_TYPE_INT: 'int',
     T_TYPE_FLOAT: 'float',
     T_TYPE_BOOL: 'bool',
     T_TYPE_STR: 'str',
-    
+
     T_IDENT: '[_a-z][_a-z0-9]*'
   }
   static removeComments (src) {
@@ -62,7 +62,7 @@ class Tokenizer {
             position = 0
           }
           if (tokenType !== 'T_WS' && tokenType !== 'T_NL') {
-            tokenQueue.push(new Token(tokenType, str))
+            tokenQueue.push(new Token(tokenType, str, { row, position }))
           }
           charQueue = charQueue.substr(len)
           position += len
@@ -73,7 +73,7 @@ class Tokenizer {
         throw new Error('Tokenization error. No token found on line ' + row + ' position ' + position + ': ' + substr)
       }
       found = false
-    }
+    }    
     return tokenQueue
   }
 }
