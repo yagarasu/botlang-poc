@@ -5,7 +5,7 @@ Program = Stmt*
 
 Stmt = VarDeclaration
      | FuncDeclaration
-     | SumOperation // Later on will have more types
+     | Expr // Later on will have more types
 
 VarDeclaration = T_VAR VarType T_IDENT T_ASSIGN SumOperation T_TERM
 
@@ -19,8 +19,18 @@ VarType = T_TYPE_INT
         | T_TYPE_BOOL
         | T_TYPE_STR
 
-SumOperation = MultOperation (OpAdd | OpSub) MultOperation
-MultOperation = Factor (OpMul | OpDiv | OpMod) Factor
-Factor = BraOp SumOperation BraCl | Number
+Expr = AssignmentOperation
+
+AssignmentOperation = LogicalOrOperation
+                      ( OpAssign | OpAssignSum | OpAssignSub | OpAssignMul | OpAssignDiv )
+                      LogicalOrOperation
+LogicalOrOperation = CompOperation (OpOr CompOperation)*
+LogicalAndOperation = CompOperation (OpAnd CompOperation)*
+CompOperation = SumOperation
+                (OpEq | OpNeq | OpGT | OpGE | OpLT | OpLE )
+                SumOperation
+SumOperation = MultOperation ((OpAdd | OpSub) MultOperation)*
+MultOperation = Factor ((OpMul | OpDiv | OpMod) Factor)*
+Factor = BraOp Expr BraCl | Number
 Number = Integer | Float
 ```

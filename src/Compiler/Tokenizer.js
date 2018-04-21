@@ -6,17 +6,11 @@ class Tokenizer {
     T_WS: '\\s+',
     T_TERM: ';',
     T_COMMA: ',',
+
     T_PAR_OP: '\\(',
     T_PAR_CL: '\\)',
     T_BRA_OP: '\\{',
     T_BRA_CL: '\\}',
-    T_ASSIGN: '=',
-    T_OP_ADD: '\\+',
-    T_OP_SUB: '-',
-    T_OP_MUL: '\\*',
-    T_OP_DIV: '\\/',
-    T_OP_MOD: '%',
-    T_OP_POW: '\\^',
 
     T_OP_EQ: '==',
     T_OP_NEQ: '!=',
@@ -28,6 +22,19 @@ class Tokenizer {
     T_OP_AND: '&&',
     T_OP_OR: '\\|\\|',
     T_OP_NOT: '!',
+
+    T_ASSIGN_ADD: '\\+=',
+    T_ASSIGN_SUB: '-=',
+    T_ASSIGN_MUL: '\\*=',
+    T_ASSIGN_DIV: '\\/=',
+    T_ASSIGN: '=',
+
+    T_OP_ADD: '\\+',
+    T_OP_SUB: '-',
+    T_OP_MUL: '\\*',
+    T_OP_DIV: '\\/',
+    T_OP_MOD: '%',
+    T_OP_POW: '\\^',
 
     T_FLOAT: '\\d+\\.\\d+',
     T_INT: '\\d+',
