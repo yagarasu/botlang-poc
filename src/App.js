@@ -14,8 +14,10 @@ export default class App extends Component {
     this.setState({ source: e.target.value })
   }
   onParseClick = e => {
-    const { tokens, ast } = Compiler.tokenize(this.state.source)
-    this.setState({ tokens, ast })
+    const tokens = Compiler.tokenize(this.state.source)
+    this.setState({ tokens })
+    const ast = Compiler.parse(tokens)
+    this.setState({ ast })
   }
   render() {
     return (

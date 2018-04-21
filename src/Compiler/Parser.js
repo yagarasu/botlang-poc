@@ -5,19 +5,23 @@ class Parser {
   }
   static parse (tokens) {
     const parser = new Parser(tokens)
-    const ast = parser.integer()
-    return {}
+    const ast = parser.Program()
+    return ast
   }
 
   syntaxError (type) {
-    const { type: curType , position } = this.current()
-    throw new Error('Unexpected ' + curType + ' on ' + position.row + ', line ' + position.position + '. Expecting ' + type)
+    const current = this.current()
+    if (!current) throw new Error('Unexpected End of file.')
+    const { type: curType , position } = current
+    throw new Error('Unexpected ' + curType + ' on line ' + position.line + ', column ' + position.column + '. Expecting ' + type)
   }
 
   current () {
-    if (!this.tokens.length) return undefined
-    if (this.pointer >= this.pointer.length) return undefined
     return this.tokens[this.pointer]
+  }
+
+  consume () {
+    return this.tokens[this.pointer++]
   }
 
   match (type) {
@@ -30,15 +34,76 @@ class Parser {
     }
   }
 
+  matchOneOf (types) {
+    const current = this.current()
+    if (current && types.includes(current.type)) {
+      this.pointer++
+      return current
+    } else {
+      this.syntaxError(types.join (' or '))
+    }
+  }
+
+  currentIs(type) {
+    const current = this.current()
+    return current && current.type === type
+  }
+
   /**
    * Rules
    */
-  integer () {
-    const token = this.match('T_INT')
-    return {
-      type: 'Integer',
-      value: parseInt(token.value)
+  Program () {
+    const ast = { type: 'Program', body: [] }
+    while(this.pointer < this.tokens.length) {
+      const current = this.Stmt()
+      ast.body.push(current)
     }
+    return ast
+  }
+
+  Stmt () {
+    const ast = { type: 'Statement', body: null }
+    ast.body = this.Expr() // This will expand
+    return ast
+  }
+
+  Expr () {
+    const ast = { type: 'Expr', left: null, op: null, right: null }
+    ast.left = this.Term()
+    if (!this.currentIs('T_OP_ADD') && !this.currentIs('T_OP_SUB')) return ast.left
+    ast.op = this.matchOneOf(['T_OP_ADD', 'T_OP_SUB']).value
+    ast.right = this.Term()
+    return ast
+  }
+
+  Term () {
+    const ast = { type: 'Term', left: null, op: null, right: null }
+    ast.left = this.Factor()
+    if (!this.currentIs('T_OP_MUL') && !this.currentIs('T_OP_DIV')) return ast.left
+    ast.op = this.matchOneOf(['T_OP_MUL', 'T_OP_DIV']).value
+    ast.right = this.Factor()
+    return ast
+  }
+
+  Factor () {
+    if (this.currentIs('T_PAR_OP')) {
+      this.match('T_PAR_OP')
+      const value = this.Expr()
+      this.match('T_PAR_CL')
+      return value
+    } else {
+      return this.Number()
+    }
+  }
+
+  Number () {
+    return this.matchOneOf(['T_INT', 'T_FLOAT'])
+  }
+
+  Integer () {
+    const ast = { type: 'Integer', value: null }
+    ast.value = parseInt(this.match('T_INT').value)
+    return ast
   }
 }
 

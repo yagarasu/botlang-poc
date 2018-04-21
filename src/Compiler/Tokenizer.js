@@ -45,8 +45,8 @@ class Tokenizer {
   }
   static tokenize (src) {
     let charQueue = Tokenizer.removeComments(src)
-    let position = 1
-    let row = 1
+    let column = 1
+    let line = 1
     const tokenQueue = []
     while (charQueue.length > 0) {
       let found = false
@@ -58,22 +58,22 @@ class Tokenizer {
           const str = m[0]
           const len = str.length
           if (tokenType === 'T_NL') {
-            row += 1
-            position = 0
+            line += 1
+            column = 0
           }
           if (tokenType !== 'T_WS' && tokenType !== 'T_NL') {
-            tokenQueue.push(new Token(tokenType, str, { row, position }))
+            tokenQueue.push(new Token(tokenType, str, { line, column }))
           }
           charQueue = charQueue.substr(len)
-          position += len
+          column += len
         }
       }
       if (!found) {
         const substr = charQueue.substr(0, 10)
-        throw new Error('Tokenization error. No token found on line ' + row + ' position ' + position + ': ' + substr)
+        throw new Error('Tokenization error. No token found on line ' + line + ' column ' + column + ': ' + substr)
       }
       found = false
-    }    
+    }
     return tokenQueue
   }
 }

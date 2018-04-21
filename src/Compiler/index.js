@@ -4,8 +4,11 @@ import Parser from './Parser'
 class Compiler {
   static tokenize (source) {
     const tokens = Tokenizer.tokenize(source)
+    return tokens
+  }
+  static parse (tokens) {
     const ast = Parser.parse(tokens)
-    return { tokens, ast }
+    return ast
   }
 }
 
