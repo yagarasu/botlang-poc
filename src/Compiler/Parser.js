@@ -17,6 +17,7 @@ class Parser {
   }
 
   backtrack () {
+    console.log('backtrack')
     this.pointer--
   }
 
@@ -78,7 +79,9 @@ class Parser {
     } else if (this.currentIs('T_FUNC')) {
       return this.FuncDeclaration()
     } else {
-      return this.Expr()
+      const expr = this.Expr()
+      this.match('T_TERM')
+      return expr
     }
   }
 
@@ -222,10 +225,10 @@ class Parser {
     console.log('SumOperation')
     const ast = { type: 'SumatoryOperation', left: null, op: null, right: null }
     ast.left = this.MultOperation()
-    if (!this.currentIs('T_OP_ADD') && !this.currentIs('T_OP_SUB')) return ast.left
+    if (!this.currentIsOneOf(['T_OP_ADD', 'T_OP_SUB'])) return ast.left
     ast.op = this.matchOneOf(['T_OP_ADD', 'T_OP_SUB']).value
     ast.right = this.MultOperation()
-    if (this.currentIs('T_OP_ADD') || this.currentIs('T_OP_SUB')) {
+    if (this.currentIsOneOf(['T_OP_ADD', 'T_OP_SUB'])) {
       this.backtrack()
       ast.right = this.SumOperation()
     }
@@ -233,7 +236,7 @@ class Parser {
   }
 
   MultOperation () {
-    console.log('SumOperation')
+    console.log('MultOperation')
     const ast = { type: 'MultiplicativeOperation', left: null, op: null, right: null }
     ast.left = this.Factor()
     if (
@@ -266,8 +269,30 @@ class Parser {
       this.match('T_PAR_CL')
       return value
     } else {
-      return this.Number()
+      return this.Literal()
     }
+  }
+
+  Literal () {
+    console.log('Literal')
+    if (this.currentIs('T_BOOL')) return this.Boolean()
+    if (this.currentIsOneOf(['T_STR_DBL', 'T_STR_SING'])) return this.String()
+    if (this.currentIsOneOf(['T_INT', 'T_FLOAT'])) return this.Number()
+  }
+
+  String () {
+    console.log('String')
+    const ast = { type: 'String', value: '' }
+    const value = this.matchOneOf(['T_STR_DBL', 'T_STR_SING']).value
+    ast.value = value.substr(1, value.length - 2)
+    return ast
+  }
+
+  Boolean () {
+    console.log('Boolean')
+    const ast = { type: 'Boolean', value: null }
+    ast.value = this.match('T_BOOL').value.toUpperCase() === 'TRUE'
+    return ast
   }
 
   Number () {

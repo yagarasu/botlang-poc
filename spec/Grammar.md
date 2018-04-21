@@ -5,7 +5,7 @@ Program = Stmt*
 
 Stmt = VarDeclaration
      | FuncDeclaration
-     | Expr // Later on will have more types
+     | Expr T_TERM // Later on will have more types
 
 VarDeclaration = T_VAR VarType T_IDENT T_ASSIGN SumOperation T_TERM
 
@@ -32,5 +32,10 @@ CompOperation = SumOperation
 SumOperation = MultOperation ((OpAdd | OpSub) MultOperation)*
 MultOperation = Factor ((OpMul | OpDiv | OpMod) Factor)*
 Factor = BraOp Expr BraCl | Number
+Literal = Number | String | Boolean
 Number = Integer | Float
+String = T_STR_DBL | T_STR_SING
+Boolean = T_BOOL
+Integer = T_INT
+Float = T_FLOAT
 ```
