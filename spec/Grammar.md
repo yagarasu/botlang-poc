@@ -31,7 +31,8 @@ CompOperation = SumOperation
                 SumOperation
 SumOperation = MultOperation ((OpAdd | OpSub) MultOperation)*
 MultOperation = Factor ((OpMul | OpDiv | OpMod) Factor)*
-Factor = BraOp Expr BraCl | Number
+Factor = BraOp Expr BraCl | Variable | Number
+Variable = T_IDENT
 Literal = Number | String | Boolean
 Number = Integer | Float
 String = T_STR_DBL | T_STR_SING

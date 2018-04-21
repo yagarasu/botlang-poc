@@ -268,9 +268,18 @@ class Parser {
       const value = this.Expr()
       this.match('T_PAR_CL')
       return value
+    } else if (this.currentIs('T_IDENT')) {
+      return this.Variable()
     } else {
       return this.Literal()
     }
+  }
+
+  Variable () {
+    console.log('Variable')
+    const ast = { type: 'VariableRef', identifier: null }
+    ast.identifier = this.match('T_IDENT').value
+    return ast
   }
 
   Literal () {
