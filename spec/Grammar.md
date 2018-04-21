@@ -32,6 +32,7 @@ CompOperation = SumOperation
 SumOperation = MultOperation ((OpAdd | OpSub) MultOperation)*
 MultOperation = Factor ((OpMul | OpDiv | OpMod) Factor)*
 Factor = BraOp Expr BraCl | Variable | Number
+FuncCall = T_IDENT T_PAR_OP [Expr (T_COMMA Expr)*] T_PAR_CL
 Variable = T_IDENT
 Literal = Number | String | Boolean
 Number = Integer | Float

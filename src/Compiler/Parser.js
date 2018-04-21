@@ -269,15 +269,33 @@ class Parser {
       this.match('T_PAR_CL')
       return value
     } else if (this.currentIs('T_IDENT')) {
-      return this.Variable()
+      const variable = this.Variable()
+      if (this.currentIs('T_PAR_OP')) {
+        this.backtrack()
+        return this.FuncCall()
+      }
+      return variable
     } else {
       return this.Literal()
     }
   }
 
+  FuncCall () {
+    console.log('FuncCall')
+    const ast = { type: 'FuncCall', identifier: null, arguments: [] }
+    ast.identifier = this.match('T_IDENT').value
+    this.match('T_PAR_OP')
+    while (!this.currentIs('T_PAR_CL')) {
+      ast.arguments.push(this.Expr())
+      if (this.currentIs('T_COMMA')) this.match('T_COMMA')
+    }
+    this.match('T_PAR_CL')
+    return ast
+  }
+
   Variable () {
     console.log('Variable')
-    const ast = { type: 'VariableRef', identifier: null }
+    const ast = { type: 'Variable', identifier: null }
     ast.identifier = this.match('T_IDENT').value
     return ast
   }
