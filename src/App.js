@@ -11,6 +11,11 @@ export default class App extends Component {
       ast: {}
     }
   }
+  onCodeKeyUp = e => {
+    if (e.ctrlKey && e.which == 13 ) {
+      this.onParseClick()
+    }
+  }
   onCodeChange = e => {
     this.setState({ error:'', source: e.target.value })
   }
@@ -35,6 +40,7 @@ export default class App extends Component {
         ) : null}
         <div>
           <textarea
+            onKeyUp={this.onCodeKeyUp}
             onChange={this.onCodeChange}
             value={this.state.source}
             style={{ width: '100%', height: '300px' }}
