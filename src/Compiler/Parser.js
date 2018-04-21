@@ -62,25 +62,101 @@ class Parser {
   }
 
   Stmt () {
-    const ast = { type: 'Statement', body: null }
-    ast.body = this.Expr() // This will expand
+    if (this.currentIs('T_VAR')) {
+      return this.VarDeclaration()
+    } else if (this.currentIs('T_FUNC')) {
+      return this.FuncDeclaration()
+    } else {
+      return this.SumOperation()
+    }
+  }
+
+  VarDeclaration () {
+    const ast = {
+      type: 'VariableDeclaration',
+      identifier: null,
+      varType: null,
+      value: null
+    }
+    this.match('T_VAR')
+    ast.varType = this.VarType().value
+    ast.identifier = this.match('T_IDENT').value
+    this.match('T_ASSIGN')
+    ast.value = this.SumOperation()
+    this.match('T_TERM')
     return ast
   }
 
-  Expr () {
-    const ast = { type: 'Expr', left: null, op: null, right: null }
-    ast.left = this.Term()
+  FuncDeclaration () {
+    const ast = {
+      type: 'FuncDeclaration',
+      identifier: null,
+      returnType: null,
+      arguments: [],
+      body: []
+    }
+    this.match('T_FUNC')
+    ast.returnType = this.VarType().value
+    ast.identifier = this.match('T_IDENT').value
+    this.match('T_PAR_OP')
+    ast.arguments = this.ArgList()
+    this.match('T_PAR_CL')
+    this.match('T_BRA_OP')
+    ast.body = this.Block()
+    this.match('T_BRA_CL')
+    return ast
+  }
+
+  ArgList () {
+    if (!this.currentIs('T_IDENT')) return []
+    const args = [this.match('T_IDENT').value]
+    while (this.currentIs('T_COMMA')) {
+      this.match('T_COMMA')
+      args.push(this.match('T_IDENT').value)
+    }
+    return args
+  }
+
+  Block () {
+    const body = []
+    while (!this.currentIs('T_BRA_CL')) {
+      body.push(this.Stmt())
+    }
+    return body
+  }
+
+  VarType () {
+    return this.matchOneOf([
+      'T_TYPE_INT',
+      'T_TYPE_FLOAT',
+      'T_TYPE_BOOL',
+      'T_TYPE_STR'
+    ])
+  }
+
+  // @TODO: There's a bug here. 2 + 2 + 2 fails
+  SumOperation () {
+    const ast = { type: 'SumatoryOperation', left: null, op: null, right: null }
+    ast.left = this.MultOperation()
     if (!this.currentIs('T_OP_ADD') && !this.currentIs('T_OP_SUB')) return ast.left
     ast.op = this.matchOneOf(['T_OP_ADD', 'T_OP_SUB']).value
-    ast.right = this.Term()
+    ast.right = this.MultOperation()
     return ast
   }
 
-  Term () {
-    const ast = { type: 'Term', left: null, op: null, right: null }
+  MultOperation () {
+    const ast = { type: 'MultiplicativeOperation', left: null, op: null, right: null }
     ast.left = this.Factor()
-    if (!this.currentIs('T_OP_MUL') && !this.currentIs('T_OP_DIV')) return ast.left
-    ast.op = this.matchOneOf(['T_OP_MUL', 'T_OP_DIV']).value
+    if (
+      !this.currentIs('T_OP_MUL') &&
+      !this.currentIs('T_OP_DIV') &&
+      !this.currentIs('T_OP_MOD')
+    ) return ast.left
+    ast.op = this.matchOneOf([
+      'T_OP_MUL',
+      'T_OP_DIV',
+      'T_OP_MOD'
+    ]).value
     ast.right = this.Factor()
     return ast
   }
@@ -88,7 +164,7 @@ class Parser {
   Factor () {
     if (this.currentIs('T_PAR_OP')) {
       this.match('T_PAR_OP')
-      const value = this.Expr()
+      const value = this.SumOperation()
       this.match('T_PAR_CL')
       return value
     } else {
@@ -97,12 +173,20 @@ class Parser {
   }
 
   Number () {
-    return this.matchOneOf(['T_INT', 'T_FLOAT'])
+    if (this.currentIs('T_INT')) return this.Integer()
+    if (this.currentIs('T_FLOAT')) return this.Float()
+    this.matchOneOf(['T_INT', 'T_FLOAT'])
   }
 
   Integer () {
     const ast = { type: 'Integer', value: null }
     ast.value = parseInt(this.match('T_INT').value)
+    return ast
+  }
+
+  Float () {
+    const ast = { type: 'Float', value: null }
+    ast.value = parseFloat(this.match('T_FLOAT').value)
     return ast
   }
 }

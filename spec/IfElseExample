@@ -1,0 +1,7 @@
+// If Else example
+
+if ( 1 < 2 ) {
+  call('debug', 'it is')
+} else {
+  call('debug', 'it is not')
+}

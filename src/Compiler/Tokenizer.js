@@ -5,6 +5,7 @@ class Tokenizer {
     T_NL: '[\\n\\r]',
     T_WS: '\\s+',
     T_TERM: ';',
+    T_COMMA: ',',
     T_PAR_OP: '\\(',
     T_PAR_CL: '\\)',
     T_BRA_OP: '\\{',
@@ -17,6 +18,17 @@ class Tokenizer {
     T_OP_MOD: '%',
     T_OP_POW: '\\^',
 
+    T_OP_EQ: '==',
+    T_OP_NEQ: '!=',
+    T_OP_GT: '>',
+    T_OP_GE: '>=',
+    T_OP_LT: '<',
+    T_OP_LE: '<=',
+
+    T_OP_AND: '&&',
+    T_OP_OR: '\\|\\|',
+    T_OP_NOT: '!',
+
     T_FLOAT: '\\d+\\.\\d+',
     T_INT: '\\d+',
     T_BOOL: 'TRUE|FALSE',
@@ -26,6 +38,7 @@ class Tokenizer {
     T_FUNC: 'func',
     T_VAR: 'var',
     T_CALL: 'call',
+    T_RET: 'return',
 
     T_FOR: 'for',
     T_WHILE: 'while',

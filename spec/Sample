@@ -1,0 +1,25 @@
+// Torreta
+
+// Main function
+func main () {
+  var bool started = call(‘ENGINE’, ‘start’);
+
+  // Main loop
+  while (started) {
+    var int detection = call(‘SCANNER’, ‘scan’);
+    if (detection == 0) {
+      call(‘ENGINE’, ‘turn’, 90)
+      continue;
+    }
+    if (detection == 1) {
+      var float distance = call(‘SCANNER’, ‘getLastDetectionDistance’);
+      if (distance < 10.0) {
+        var bool fire = call(‘WEAPON’, ‘fire’);
+      }
+    }
+  };
+
+  // Engine failed
+  call(‘DEBUG’, ‘log’, ‘Engine failed!’);
+  call(‘DEBUG’, ‘beep’);
+};

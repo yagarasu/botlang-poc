@@ -6,23 +6,33 @@ export default class App extends Component {
     super(props)
     this.state = {
       source: '',
+      error: '',
       tokens: [],
       ast: {}
     }
   }
   onCodeChange = e => {
-    this.setState({ source: e.target.value })
+    this.setState({ error:'', source: e.target.value })
   }
   onParseClick = e => {
-    const tokens = Compiler.tokenize(this.state.source)
-    this.setState({ tokens })
-    const ast = Compiler.parse(tokens)
-    this.setState({ ast })
+    try {
+      const tokens = Compiler.tokenize(this.state.source)
+      this.setState({ tokens })
+      const ast = Compiler.parse(tokens)
+      this.setState({ ast })
+    } catch (err) {
+      this.setState({ error: err.message })
+    }
   }
   render() {
     return (
       <div>
         <h1>Parser</h1>
+        {this.state.error !== '' ? (
+          <div style={{ color: '#721c24', background: '#f8d7da', border: '1px solid #f5c6cb', padding: '10px' }}>
+            {this.state.error}
+          </div>
+        ) : null}
         <div>
           <textarea
             onChange={this.onCodeChange}
