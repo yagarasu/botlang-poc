@@ -6,6 +6,9 @@ Program = Stmt*
 Stmt = VarDeclaration
      | FuncDeclaration
      | IfStmt
+     | ForStmt
+     | WhileStmt
+     | ContinueStmt
      | Expr T_TERM // Later on will have more types
 
 VarDeclaration = T_VAR VarType T_IDENT T_ASSIGN SumOperation T_TERM
@@ -15,6 +18,10 @@ ArgList = [T_IDENT (T_COMMA T_IDENT)*]
 
 IfStmt =  T_IF T_PAR_OP Expr T_PAR_CL T_BRA_OP Block T_BRA_CL
        [T_ELSE (T_BRA_OP Block T_BRA_CL | IfStmt)]
+
+ForStmt = T_FOR T_PAR_OP Expr T_TERM Expr T_TERM Expr T_PAR_CL T_BRA_OP Block T_BRA_CL
+WhileStmt = T_WHILE T_PAR_OP Expr T_PAR_CL T_BRA_OP Block T_BRA_CL
+ContinueStmt = T_CONTINUE [T_INT] T_TERM
 
 Block = Stmt*
 

@@ -17,7 +17,6 @@ class Parser {
   }
 
   backtrack () {
-
     this.pointer--
   }
 
@@ -72,17 +71,36 @@ class Parser {
   }
 
   Stmt () {
-    if (this.currentIs('T_VAR')) {
-      return this.VarDeclaration()
-    } else if (this.currentIs('T_IF')) {
+    if (this.currentIs('T_IF')) {
       return this.IfStmt()
+    } else if (this.currentIs('T_FOR')) {
+      return this.ForStmt()
+    } else if (this.currentIs('T_WHILE')) {
+      return this.WhileStmt()
     } else if (this.currentIs('T_FUNC')) {
       return this.FuncDeclaration()
-    } else {
-      const expr = this.Expr()
-      this.match('T_TERM')
-      return expr
+    } else if (this.currentIs('T_CONTINUE')) {
+      return this.ContinueStmt()
     }
+
+    let ast = null
+    if (this.currentIs('T_VAR')) {
+      ast = this.VarDeclaration()
+    } else {
+      ast = this.Expr()
+    }
+    this.match('T_TERM')
+    return ast
+  }
+
+  ContinueStmt () {
+    const ast = { type: 'ContinueStatement', depth: 0 }
+    this.match('T_CONTINUE')
+    if (this.currentIs('T_INT')) {
+      ast.depth = parseInt(this.match('T_INT').value)
+    }
+    this.match('T_TERM')
+    return ast
   }
 
   VarDeclaration () {
@@ -97,7 +115,6 @@ class Parser {
     ast.identifier = this.match('T_IDENT').value
     this.match('T_ASSIGN')
     ast.value = this.Expr()
-    this.match('T_TERM')
     return ast
   }
 
@@ -158,6 +175,52 @@ class Parser {
     return ast
   }
 
+  ForStmt () {
+    const ast = {
+      type: 'ForStatement',
+      initial: null,
+      test: null,
+      update: null,
+      body: null
+    }
+    this.match('T_FOR')
+    this.match('T_PAR_OP')
+    if (this.currentIs('T_VAR')) {
+      ast.initial = this.VarDeclaration()
+    } else {
+      ast.initial = this.Expr()
+    }
+    this.match('T_TERM')
+    ast.test = this.Expr()
+    this.match('T_TERM')
+    ast.update = this.Expr()
+    this.match('T_PAR_CL')
+    this.match('T_BRA_OP')
+    ast.body = this.Block()
+    this.match('T_BRA_CL')
+    return ast
+  }
+
+  WhileStmt () {
+    const ast = {
+      type: 'WhileStatement',
+      test: null,
+      body: null
+    }
+    this.match('T_WHILE')
+    this.match('T_PAR_OP')
+    if (this.currentIs('T_VAR')) {
+      ast.test = this.VarDeclaration()
+    } else {
+      ast.test = this.Expr()
+    }
+    this.match('T_PAR_CL')
+    this.match('T_BRA_OP')
+    ast.body = this.Block()
+    this.match('T_BRA_CL')
+    return ast
+  }
+
   Block () {
     const body = []
     while (!this.currentIs('T_BRA_CL')) {
@@ -168,6 +231,7 @@ class Parser {
 
   VarType () {
     return this.matchOneOf([
+      'T_TYPE_VOID',
       'T_TYPE_INT',
       'T_TYPE_FLOAT',
       'T_TYPE_BOOL',
@@ -277,6 +341,7 @@ class Parser {
   }
 
   Factor () {
+    console.log('Factor', this.current())
     if (this.currentIs('T_PAR_OP')) {
       this.match('T_PAR_OP')
       const value = this.Expr()

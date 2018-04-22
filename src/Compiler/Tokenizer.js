@@ -44,14 +44,15 @@ class Tokenizer {
 
     T_FUNC: 'func',
     T_VAR: 'var',
-    T_CALL: 'call',
     T_RET: 'return',
 
     T_FOR: 'for',
     T_WHILE: 'while',
+    T_CONTINUE: 'continue',
     T_IF: 'if',
     T_ELSE: 'else',
 
+    T_TYPE_VOID: 'void',
     T_TYPE_INT: 'int',
     T_TYPE_FLOAT: 'float',
     T_TYPE_BOOL: 'bool',
