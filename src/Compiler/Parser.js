@@ -341,7 +341,6 @@ class Parser {
   }
 
   Factor () {
-    console.log('Factor', this.current())
     if (this.currentIs('T_PAR_OP')) {
       this.match('T_PAR_OP')
       const value = this.Expr()
