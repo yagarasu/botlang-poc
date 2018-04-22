@@ -5,12 +5,16 @@ Program = Stmt*
 
 Stmt = VarDeclaration
      | FuncDeclaration
+     | IfStmt
      | Expr T_TERM // Later on will have more types
 
 VarDeclaration = T_VAR VarType T_IDENT T_ASSIGN SumOperation T_TERM
 
 FuncDeclaration = T_FUNC VarType T_IDENT T_PAR_OP ArgList T_PAR_CL T_BRA_OP Block T_BRA_CL
 ArgList = [T_IDENT (T_COMMA T_IDENT)*]
+
+IfStmt =  T_IF T_PAR_OP Expr T_PAR_CL T_BRA_OP Block T_BRA_CL
+       [T_ELSE (T_BRA_OP Block T_BRA_CL | IfStmt)]
 
 Block = Stmt*
 

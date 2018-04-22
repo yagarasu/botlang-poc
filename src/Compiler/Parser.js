@@ -17,7 +17,7 @@ class Parser {
   }
 
   backtrack () {
-    console.log('backtrack')
+
     this.pointer--
   }
 
@@ -63,7 +63,6 @@ class Parser {
    * Rules
    */
   Program () {
-    console.log('Program')
     const ast = { type: 'Program', body: [] }
     while(this.pointer < this.tokens.length) {
       const current = this.Stmt()
@@ -73,9 +72,10 @@ class Parser {
   }
 
   Stmt () {
-    console.log('Stmt')
     if (this.currentIs('T_VAR')) {
       return this.VarDeclaration()
+    } else if (this.currentIs('T_IF')) {
+      return this.IfStmt()
     } else if (this.currentIs('T_FUNC')) {
       return this.FuncDeclaration()
     } else {
@@ -86,7 +86,6 @@ class Parser {
   }
 
   VarDeclaration () {
-    console.log('VarDeclaration')
     const ast = {
       type: 'VariableDeclaration',
       identifier: null,
@@ -103,7 +102,6 @@ class Parser {
   }
 
   FuncDeclaration () {
-    console.log('FuncDeclaration')
     const ast = {
       type: 'FuncDeclaration',
       identifier: null,
@@ -124,7 +122,6 @@ class Parser {
   }
 
   ArgList () {
-    console.log('ArgList')
     if (!this.currentIs('T_IDENT')) return []
     const args = [this.match('T_IDENT').value]
     while (this.currentIs('T_COMMA')) {
@@ -134,8 +131,34 @@ class Parser {
     return args
   }
 
+  IfStmt () {
+    const ast = {
+      type: 'IfStatement',
+      test: null,
+      consequent: null,
+      alternate: null
+    }
+    this.match('T_IF')
+    this.match('T_PAR_OP')
+    ast.test = this.Expr()
+    this.match('T_PAR_CL')
+    this.match('T_BRA_OP')
+    ast.consequent = this.Block()
+    this.match('T_BRA_CL')
+    if (this.currentIs('T_ELSE')) {
+      this.match('T_ELSE')
+      if (this.currentIs('T_BRA_OP')) {
+        this.match('T_BRA_OP')
+        ast.alternate = this.Block()
+        this.match('T_BRA_CL')
+      } else {
+        ast.alternate = this.IfStmt()
+      }
+    }
+    return ast
+  }
+
   Block () {
-    console.log('Block')
     const body = []
     while (!this.currentIs('T_BRA_CL')) {
       body.push(this.Stmt())
@@ -144,7 +167,6 @@ class Parser {
   }
 
   VarType () {
-    console.log('VarType')
     return this.matchOneOf([
       'T_TYPE_INT',
       'T_TYPE_FLOAT',
@@ -154,12 +176,10 @@ class Parser {
   }
 
   Expr () {
-    console.log('Expr')
     return this.AssignmentOperation()
   }
 
   AssignmentOperation () {
-    console.log('AssignmentOperation')
     const ast = { type: 'AssignmentOperation', left: null, op: null, right: null }
     const allowedOps = [
       'T_ASSIGN_ADD',
@@ -176,7 +196,6 @@ class Parser {
   }
 
   LogicalOrOperation () {
-    console.log('LogicalOrOperation')
     const ast = { type: 'LogicalOrOperation', left: null, op: null, right: null }
     ast.left = this.LogicalAndOperation()
     if (!this.currentIs('T_OP_OR')) return ast.left
@@ -190,7 +209,6 @@ class Parser {
   }
 
   LogicalAndOperation () {
-    console.log('LogicalAndOperation')
     const ast = { type: 'LogicalAndOperation', left: null, op: null, right: null }
     ast.left = this.CompOperation()
     if (!this.currentIs('T_OP_AND')) return ast.left
@@ -204,7 +222,6 @@ class Parser {
   }
 
   CompOperation () {
-    console.log('CompOperation')
     const ast = { type: 'ComparisonOperation', left: null, op: null, right: null }
     const allowedOps = [
       'T_OP_EQ',
@@ -222,7 +239,6 @@ class Parser {
   }
 
   SumOperation () {
-    console.log('SumOperation')
     const ast = { type: 'SumatoryOperation', left: null, op: null, right: null }
     ast.left = this.MultOperation()
     if (!this.currentIsOneOf(['T_OP_ADD', 'T_OP_SUB'])) return ast.left
@@ -236,7 +252,6 @@ class Parser {
   }
 
   MultOperation () {
-    console.log('MultOperation')
     const ast = { type: 'MultiplicativeOperation', left: null, op: null, right: null }
     ast.left = this.Factor()
     if (
@@ -262,7 +277,6 @@ class Parser {
   }
 
   Factor () {
-    console.log('Factor')
     if (this.currentIs('T_PAR_OP')) {
       this.match('T_PAR_OP')
       const value = this.Expr()
@@ -281,7 +295,6 @@ class Parser {
   }
 
   FuncCall () {
-    console.log('FuncCall')
     const ast = { type: 'FuncCall', identifier: null, arguments: [] }
     ast.identifier = this.match('T_IDENT').value
     this.match('T_PAR_OP')
@@ -294,21 +307,18 @@ class Parser {
   }
 
   Variable () {
-    console.log('Variable')
     const ast = { type: 'Variable', identifier: null }
     ast.identifier = this.match('T_IDENT').value
     return ast
   }
 
   Literal () {
-    console.log('Literal')
     if (this.currentIs('T_BOOL')) return this.Boolean()
     if (this.currentIsOneOf(['T_STR_DBL', 'T_STR_SING'])) return this.String()
     if (this.currentIsOneOf(['T_INT', 'T_FLOAT'])) return this.Number()
   }
 
   String () {
-    console.log('String')
     const ast = { type: 'String', value: '' }
     const value = this.matchOneOf(['T_STR_DBL', 'T_STR_SING']).value
     ast.value = value.substr(1, value.length - 2)
@@ -316,28 +326,24 @@ class Parser {
   }
 
   Boolean () {
-    console.log('Boolean')
     const ast = { type: 'Boolean', value: null }
     ast.value = this.match('T_BOOL').value.toUpperCase() === 'TRUE'
     return ast
   }
 
   Number () {
-    console.log('Number')
     if (this.currentIs('T_INT')) return this.Integer()
     if (this.currentIs('T_FLOAT')) return this.Float()
     this.matchOneOf(['T_INT', 'T_FLOAT'])
   }
 
   Integer () {
-    console.log('Integer')
     const ast = { type: 'Integer', value: null }
     ast.value = parseInt(this.match('T_INT').value)
     return ast
   }
 
   Float () {
-    console.log('Float')
     const ast = { type: 'Float', value: null }
     ast.value = parseFloat(this.match('T_FLOAT').value)
     return ast

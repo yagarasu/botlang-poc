@@ -38,7 +38,7 @@ class Tokenizer {
 
     T_FLOAT: '\\d+\\.\\d+',
     T_INT: '\\d+',
-    T_BOOL: 'TRUE|FALSE',
+    T_BOOL: '(TRUE|FALSE)',
     T_STR_DBL: '"[^"]*"',
     T_STR_SING: '\'[^\']*\'',
 
@@ -51,7 +51,6 @@ class Tokenizer {
     T_WHILE: 'while',
     T_IF: 'if',
     T_ELSE: 'else',
-    T_ELSEIF: 'elseif',
 
     T_TYPE_INT: 'int',
     T_TYPE_FLOAT: 'float',
