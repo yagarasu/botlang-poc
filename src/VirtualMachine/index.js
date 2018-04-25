@@ -42,17 +42,44 @@ export default class VirtualMachine {
     return header
   }
 
+  currentCodeByte () {
+    return this.code[this.ptr]
+  }
+
+  consumeByte () {
+    return this.code[this.ptr++]
+  }
+
+  consume16Bits () {
+    const hb = this.consumeByte() << 8
+    const lb = this.consumeByte()
+    return lb + hb
+  }
+
+  consume32Bits () {
+    const hb = this.consume16Bits() << 16
+    const lb = this.consume16Bits()
+    return lb + hb
+  }
+
+  consume64Bits () {
+    const hb = this.consume32Bits() << 32
+    const lb = this.consume32Bits()
+    return lb + hb
+  }
+
+  dataAt(offset) {
+    return this.data[offset]
+  }
+
   run () {
     console.log(this.header)
     console.log(this.code)
     console.log(this.data)
+
   }
 
   step () {
-
-  }
-
-  exec (opcode, args) {
 
   }
 }
