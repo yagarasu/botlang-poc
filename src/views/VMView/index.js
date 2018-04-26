@@ -21,10 +21,7 @@ export default class VMView extends Component {
   }
   onRunClick = e => {
     const { source } = this.state
-    const inMem = VirtualMachine.stringToBytes(source)
-    const vm = new VirtualMachine(inMem)
-    vm.run()
-    this.setState({ inMem })
+    console.log(source)
   }
   render() {
     return (
