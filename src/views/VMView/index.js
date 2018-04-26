@@ -36,7 +36,17 @@ export default class VMView extends Component {
   }
   onRunClick = e => {
     const { source } = this.state
-    console.log(source)
+    const byteTo32Byte = []
+    for (let i = 0; i < source.length; i += 4) {
+      const a = (source[i] || 0) << 24
+      const b = (source[i + 1] || 0) << 16
+      const c = (source[i + 2] || 0) << 8
+      const d = (source[i + 3] || 0)
+      console.log(a + b + c + d, a, b, c, d)
+      byteTo32Byte.push(a + b + c + d)
+    }
+    const bytecode = Uint32Array.from(byteTo32Byte)
+    console.log(bytecode)
   }
   render() {
     return (

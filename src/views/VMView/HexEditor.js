@@ -9,6 +9,13 @@ const formatByte = num => ('00' + num.toString(16)).substr(-2).toUpperCase()
 
 const pos2Idx = (col, row) => (row * 16) + col
 
+const bgcolor = (idx, hovered, selected) =>
+  idx === hovered
+  ? 'yellow'
+  : (idx === selected)
+    ? 'cyan'
+    : null
+
 export default class HexEditor extends Component {
   state = {
     selected: null,
@@ -50,7 +57,7 @@ export default class HexEditor extends Component {
         cols.push(
           <td
             key={`${col}-${row}`}
-            style={idx === hovered ? { background: 'yellow' } : (idx === selected) ? { background: 'cyan' } : null}
+            style={{ background: bgcolor(idx, hovered, selected), borderRight: ((idx + 1) % 4 === 0) ? '5px solid #ccc' : null }}
             onClick={this.handleClick(idx)}
             onMouseEnter={this.handleHover(idx)}
           >
