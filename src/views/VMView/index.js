@@ -1,23 +1,38 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import VirtualMachine from '../../VirtualMachine'
+import HexEditor from './HexEditor'
 
 export default class VMView extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      source: '',
       error: '',
-      inMem: [],
-      ctx: {}
+      source: [
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+      ]
     }
   }
-  onCodeKeyUp = e => {
-    if (e.ctrlKey && e.which == 13 ) {
-      this.onRunClick()
-    }
-  }
-  onCodeChange = e => {
-    this.setState({ error:'', source: e.target.value })
+  onSourceChange = (idx, val) => {
+    const { source } = this.state
+    const newSource = source.slice(0, idx)
+    newSource.push(parseInt(val, 16))
+    newSource.push(...source.slice(idx + 1))
+    this.setState({ source: newSource })
   }
   onRunClick = e => {
     const { source } = this.state
@@ -33,11 +48,9 @@ export default class VMView extends Component {
           </div>
         ) : null}
         <div>
-          <textarea
-            onKeyUp={this.onCodeKeyUp}
-            onChange={this.onCodeChange}
-            value={this.state.source}
-            style={{ width: '100%', height: '100px' }}
+          <HexEditor
+            onChange={this.onSourceChange}
+            data={this.state.source}
           />
         </div>
         <div>

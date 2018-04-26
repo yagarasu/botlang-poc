@@ -1,4 +1,4 @@
-import * from './opcodes'
+import * as ops from './opcodes'
 
 const STACK_SIZE = 1024
 
@@ -31,8 +31,8 @@ export default class VirtualMachine {
     const sizes = new Uint32Array(bytes, 4, 4)
     return {
       version: {
-        major: version[0]
-        minor: version[1]
+        major: version[0],
+        minor: version[1],
         patch: version[2]
       },
       codeOffset: sizes[0],
