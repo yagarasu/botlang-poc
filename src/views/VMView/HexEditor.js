@@ -9,12 +9,14 @@ const formatByte = num => ('00' + num.toString(16)).substr(-2).toUpperCase()
 
 const pos2Idx = (col, row) => (row * 16) + col
 
-const bgcolor = (idx, hovered, selected) =>
-  idx === hovered
-  ? 'yellow'
-  : (idx === selected)
-    ? 'cyan'
-    : null
+const bgcolor = (idx, hovered, selected, highlight) =>
+  idx === highlight
+  ? '#66FF66'
+  : idx === hovered
+    ? 'yellow'
+    : (idx === selected)
+      ? 'cyan'
+      : null
 
 export default class HexEditor extends Component {
   state = {
@@ -38,7 +40,7 @@ export default class HexEditor extends Component {
     }
   }
   render () {
-    const { data } = this.props
+    const { data, highlight } = this.props
     const { selected,
       hovered } = this.state
     const rowCount = Math.ceil(data.length / 16)
@@ -57,7 +59,7 @@ export default class HexEditor extends Component {
         cols.push(
           <td
             key={`${col}-${row}`}
-            style={{ background: bgcolor(idx, hovered, selected), borderRight: ((idx + 1) % 4 === 0) ? '5px solid #ccc' : null }}
+            style={{ background: bgcolor(idx, hovered, selected, highlight), borderRight: ((idx + 1) % 4 === 0) ? '5px solid #ccc' : null }}
             onClick={this.handleClick(idx)}
             onMouseEnter={this.handleHover(idx)}
           >

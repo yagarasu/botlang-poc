@@ -7,6 +7,7 @@ export default class VMView extends Component {
     super(props)
     this.state = {
       error: '',
+      highlight: null,
       source: [
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -42,11 +43,16 @@ export default class VMView extends Component {
       const b = (source[i + 1] || 0) << 16
       const c = (source[i + 2] || 0) << 8
       const d = (source[i + 3] || 0)
-      console.log(a + b + c + d, a, b, c, d)
       byteTo32Byte.push(a + b + c + d)
     }
     const bytecode = Uint32Array.from(byteTo32Byte)
+    const vm = new VirtualMachine()
+    console.log('buffer', bytecode.buffer)
+    vm.load(bytecode.buffer)
+    vm.step()
+    vm.step()
     console.log(bytecode)
+    console.log(vm.peek())
   }
   render() {
     return (
@@ -61,6 +67,7 @@ export default class VMView extends Component {
           <HexEditor
             onChange={this.onSourceChange}
             data={this.state.source}
+            highlight={this.state.highlight}
           />
         </div>
         <div>

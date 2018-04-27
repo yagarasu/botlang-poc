@@ -13,17 +13,20 @@ export default class VirtualMachine {
     this.ip = 0
     this.sp = -1
     this.fp = 0
+    this.running = false
   }
 
   load (bytes) {
     this.raw = bytes
     this.header = this.parseHeader(bytes)
+    console.log(this.header)
     this.code = new Uint32Array(bytes, this.header.codeOffset, this.header.codeSize)
     this.data = new Uint32Array(bytes, this.header.dataOffset, this.header.dataSize)
     this.stack = new Uint32Array(STACK_SIZE)
     this.ip = 0
     this.sp = -1
     this.fp = 0
+    this.running = false
   }
 
   parseHeader (bytes) {
@@ -39,6 +42,19 @@ export default class VirtualMachine {
       codeSize: sizes[1],
       dataOffset: sizes[2],
       dataSize: sizes[3]
+    }
+  }
+
+  step () {
+    const command = this.code[this.ip++]
+    console.log('step', command)
+    switch (command) {
+      case ops.CONSTI:
+        this.stack[++this.sp] = this.code[this.ip++]
+        break;
+      case ops.HALT:
+        this.running = false;
+        break;
     }
   }
 
