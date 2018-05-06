@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import {
   ParserView,
+  AssemblerView,
   VMView
 } from './views'
 
 const views = {
   parser: (<ParserView />),
+  assembler: (<AssemblerView />),
   vm: (<VMView />),
   default: (<p>Not found</p>)
 }
@@ -33,6 +35,7 @@ export default class App extends Component {
           <h1>Botlang</h1>
           <nav>
             <button onClick={this.hndNavChange('parser')}>Parser</button>
+            <button onClick={this.hndNavChange('assembler')}>Assembler</button>
             <button onClick={this.hndNavChange('vm')}>VirtualMachine</button>
           </nav>
         </header>

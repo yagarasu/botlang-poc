@@ -1,75 +1,80 @@
-import * as ops from './opcodes'
-
-const STACK_SIZE = 1024
-
 export default class VirtualMachine {
   constructor () {
-    this.raw = null
-    this.header = null
-    this.code = null
-    this.data = null
-    this.stack = null
-
-    this.ip = 0
+    this.pc = 0
     this.sp = -1
-    this.fp = 0
+    this.mem = new Uint32Array(1000)
+    this.stack = new Uint32Array(100)
+    this.callstack = []
     this.running = false
   }
 
-  load (bytes) {
-    this.raw = bytes
-    this.header = this.parseHeader(bytes)
-    console.log(this.header)
-    this.code = new Uint32Array(bytes, this.header.codeOffset, this.header.codeSize)
-    this.data = new Uint32Array(bytes, this.header.dataOffset, this.header.dataSize)
-    this.stack = new Uint32Array(STACK_SIZE)
-    this.ip = 0
-    this.sp = -1
-    this.fp = 0
-    this.running = false
-  }
-
-  parseHeader (bytes) {
-    const version = new Uint8Array(bytes, 0, 3)
-    const sizes = new Uint32Array(bytes, 4, 4)
-    return {
-      version: {
-        major: version[0],
-        minor: version[1],
-        patch: version[2]
-      },
-      codeOffset: sizes[0],
-      codeSize: sizes[1],
-      dataOffset: sizes[2],
-      dataSize: sizes[3]
+  load (code) {
+    for (let i = 0; i < code.length; i++) {
+      this.mem[i] = code[i]
     }
   }
 
-  step () {
-    const command = this.code[this.ip++]
-    console.log('step', command)
-    switch (command) {
-      case ops.CONSTI:
-        this.stack[++this.sp] = this.code[this.ip++]
-        break;
-      case ops.HALT:
-        this.running = false;
-        break;
+  run () {
+    console.log('running')
+    this.running = true
+    while (this.running && this.pc < this.mem.length) {
+      this.execute()
+      this.peek()
     }
+  }
+
+  fetch () {
+    return this.mem[this.pc++]
+  }
+
+  decode (instr) {
+    const map = {
+      0: 'HLT',
+      1: 'ICONST',
+      2: 'IADD'
+    }
+    return map[instr]
+  }
+
+  execute () {
+    const instrSet = {
+      'HLT': this.doHLT.bind(this),
+      'ICONST': this.doICONST.bind(this),
+      'IADD': this.doIADD.bind(this)
+    }
+    const instr = this.decode(this.fetch())
+    instrSet[instr]()
   }
 
   peek () {
-    return {
-      raw: this.raw,
-      header: this.header,
-      code: this.code,
-      data: this.data,
-      stack: this.stack,
-      registers: {
-        ip: this.ip,
-        sp: this.sp,
-        fp: this.fp
-      }
-    }
+    const { pc, sp } = this
+    const cmd = this.mem[this.pc]
+    const stack = sp > -1 ? this.stack.slice(0, sp + 1) : []
+    console.log(`${pc}\tCMD ${cmd}\tSTACK [${stack.join(' ')}]`)
+  }
+
+  push (val) {
+    this.stack[++this.sp] = val
+  }
+
+  pop () {
+    return this.stack[this.sp--]
+  }
+
+  doHLT () {
+    this.running = false
+    console.log('halted')
+  }
+
+  doICONST () {
+    const val = this.mem[this.pc++]
+    this.push(val)
+  }
+
+  doIADD () {
+    const b = this.pop()
+    const a = this.pop()
+    const r = a + b
+    this.push(r)
   }
 }

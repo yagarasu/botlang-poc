@@ -46,13 +46,17 @@ export default class VMView extends Component {
       byteTo32Byte.push(a + b + c + d)
     }
     const bytecode = Uint32Array.from(byteTo32Byte)
+    const p = new Uint32Array([
+      1, 2,
+      1, 3,
+      2,
+      1, 5,
+      2,
+      0
+    ])
     const vm = new VirtualMachine()
-    console.log('buffer', bytecode.buffer)
-    vm.load(bytecode.buffer)
-    vm.step()
-    vm.step()
-    console.log(bytecode)
-    console.log(vm.peek())
+    vm.load(p)
+    vm.run()
   }
   render() {
     return (
