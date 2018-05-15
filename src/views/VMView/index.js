@@ -47,11 +47,15 @@ export default class VMView extends Component {
     }
     const bytecode = Uint32Array.from(byteTo32Byte)
     const p = new Uint32Array([
-      1, 2,
-      1, 3,
-      2,
-      1, 5,
-      2,
+      0x00030101,
+      0x00020101,
+      5, // push true
+      // 4, // push false
+      0x309, 0x6, // if false, jmp 6
+      0x00080108, // jmp 8
+      0x00050101, // push 5
+      0x00090108, // jmp 9
+      0x000A0101, // push 10
       0
     ])
     const vm = new VirtualMachine()

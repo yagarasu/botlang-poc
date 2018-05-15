@@ -1,7 +1,23 @@
+import ConstantPool from './ConstantPool'
+
+const opcodes = [
+  'HLT',
+  'ICONST',
+  'FCONST',
+  'SCONST',
+  'BCONSTFALSE',
+  'BCONSTTRUE',
+  'CALL',
+  'RET',
+  'JMP',
+  'JMPIFFALSE'
+]
+
 export default class VirtualMachine {
   constructor () {
     this.pc = 0
     this.sp = -1
+    this.constantPool = new ConstantPool()
     this.mem = new Uint32Array(1000)
     this.stack = new Uint32Array(100)
     this.callstack = []
@@ -18,8 +34,8 @@ export default class VirtualMachine {
     console.log('running')
     this.running = true
     while (this.running && this.pc < this.mem.length) {
-      this.execute()
       this.peek()
+      this.execute()
     }
   }
 
@@ -28,29 +44,64 @@ export default class VirtualMachine {
   }
 
   decode (instr) {
-    const map = {
-      0: 'HLT',
-      1: 'ICONST',
-      2: 'IADD'
-    }
-    return map[instr]
+    return opcodes[instr]
   }
 
   execute () {
-    const instrSet = {
-      'HLT': this.doHLT.bind(this),
-      'ICONST': this.doICONST.bind(this),
-      'IADD': this.doIADD.bind(this)
+    const op = this.fetch()
+    const paramType = (op & 0x0F00) >> 8
+    const stackType = (op & 0xF000) >> 12
+    const instr = this.decode(op & 0xFF)
+    if (instr === 'HLT') this.doHLT()
+    if (instr === 'ICONST') {
+      if (paramType === 1) {
+        this.push((op & 0xFF0000) >> 16)
+      } else if (paramType === 2) {
+        this.push((op & 0xFFFF0000) >> 16)
+      } else if (paramType === 3) {
+        this.push(this.fetch())
+      }
     }
-    const instr = this.decode(this.fetch())
-    instrSet[instr]()
+    if (instr === 'FCONST' || instr === 'SCONST') {
+      this.push(this.constantPool.get(this.fetch()))
+    }
+    if (instr === 'BCONSTFALSE') {
+      this.push(0)
+    }
+    if (instr === 'BCONSTTRUE') {
+      this.push(1)
+    }
+    if (instr === 'JMP') {
+      if (paramType === 1) {
+        this.pc = (op & 0xFF0000) >> 16
+      } else if (paramType === 2) {
+        this.pc = (op & 0xFFFF0000) >> 16
+      } else if (paramType === 3) {
+        this.pc = this.fetch()
+      }
+    }
+    if (instr === 'JMPIFFALSE') {
+      const test = !!this.pop()
+      if (test) {
+        if (paramType === 3) this.fetch()
+        return
+      }
+      if (paramType === 1) {
+        this.pc = (op & 0xFF0000) >> 16
+      } else if (paramType === 2) {
+        this.pc = (op & 0xFFFF0000) >> 16
+      } else if (paramType === 3) {
+        this.pc = this.fetch()
+      }
+    }
   }
 
   peek () {
     const { pc, sp } = this
     const cmd = this.mem[this.pc]
+    const instr = this.decode(cmd & 0xFF)
     const stack = sp > -1 ? this.stack.slice(0, sp + 1) : []
-    console.log(`${pc}\tCMD ${cmd}\tSTACK [${stack.join(' ')}]`)
+    console.log(`${pc}\tCMD (${instr})${cmd}\tSTACK [${stack.join(' ')}]`)
   }
 
   push (val) {
@@ -63,18 +114,5 @@ export default class VirtualMachine {
 
   doHLT () {
     this.running = false
-    console.log('halted')
-  }
-
-  doICONST () {
-    const val = this.mem[this.pc++]
-    this.push(val)
-  }
-
-  doIADD () {
-    const b = this.pop()
-    const a = this.pop()
-    const r = a + b
-    this.push(r)
   }
 }
